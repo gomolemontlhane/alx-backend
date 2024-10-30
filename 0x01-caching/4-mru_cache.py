@@ -3,6 +3,7 @@
 
 from base_caching import BaseCaching
 
+
 class MRUCache(BaseCaching):
     """ MRUCache defines a caching system using MRU algorithm """
 

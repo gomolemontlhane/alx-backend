@@ -3,6 +3,7 @@
 
 from base_caching import BaseCaching
 
+
 class LRUCache(BaseCaching):
     """ LRUCache defines a caching system using LRU algorithm """
 

@@ -3,6 +3,7 @@
 
 from base_caching import BaseCaching
 
+
 class FIFOCache(BaseCaching):
     """ FIFOCache defines a caching system using FIFO algorithm """
 
