@@ -1,48 +1,47 @@
 #!/usr/bin/env python3
 """
-4-app.py: A Flask application with Babel for internationalization with URL parameter support.
+Flask app
 """
+from flask import (
+    Flask,
+    render_template,
+    request
+)
+from flask_babel import Babel
 
-from flask import Flask, render_template, request
-from flask_babel import Babel, _
 
-class Config:
-    """Configuration class for Flask-Babel."""
+class Config(object):
+    """
+    Configuration for Babel
+    """
     LANGUAGES = ["en", "fr"]
-    BABEL_DEFAULT_LOCALE = 'en'
-    BABEL_DEFAULT_TIMEZONE = 'UTC'
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
 
-# Initialize the Flask application
+
 app = Flask(__name__)
 app.config.from_object(Config)
-
-# Initialize Babel
 babel = Babel(app)
 
-@babel.localeselector
-def get_locale() -> str:
-    """
-    Determines the best match with the supported languages based on the request's accept languages.
-    Also checks for a locale parameter in the URL.
 
-    Returns:
-        str: The best match locale.
+@babel.localeselector
+def get_locale():
     """
-    # Get the locale from URL parameters
-    locale_param = request.args.get('locale')
-    if locale_param in app.config['LANGUAGES']:
-        return locale_param
+    Select and return best language match based on supported languages
+    """
+    loc = request.args.get('locale')
+    if loc in app.config['LANGUAGES']:
+        return loc
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
-@app.route('/')
+
+@app.route('/', strict_slashes=False)
 def index() -> str:
     """
-    Renders the index page with a welcome message.
-
-    Returns:
-        str: The rendered HTML template.
+    Handles / route
     """
     return render_template('4-index.html')
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+if __name__ == "__main__":
+    app.run(port="5000", host="0.0.0.0", debug=True)

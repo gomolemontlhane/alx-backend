@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """
-5-app.py: A Flask application with Babel for internationalization and mock user login.
+Flask app
 """
+from flask import (
+    Flask,
+    render_template,
+    request,
+    g
+)
+from flask_babel import Babel
 
-from flask import Flask, render_template, request, g
-from flask_babel import Babel, _
 
-# Mock user database
 users = {
     1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
     2: {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
@@ -14,67 +18,59 @@ users = {
     4: {"name": "Teletubby", "locale": None, "timezone": "Europe/London"},
 }
 
-class Config:
-    """Configuration class for Flask-Babel."""
-    LANGUAGES = ["en", "fr"]
-    BABEL_DEFAULT_LOCALE = 'en'
-    BABEL_DEFAULT_TIMEZONE = 'UTC'
 
-# Initialize the Flask application
+class Config(object):
+    """
+    Configuration for Babel
+    """
+    LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
+
+
 app = Flask(__name__)
 app.config.from_object(Config)
-
-# Initialize Babel
 babel = Babel(app)
+
 
 def get_user():
     """
-    Retrieves a user from the mock database based on the login_as parameter.
-
-    Returns:
-        dict or None: The user dictionary or None if the user is not found.
+    Returns a user dictionary or None if ID value can't be found
+    or if 'login_as' URL parameter was not found
     """
-    user_id = request.args.get('login_as')
-    if user_id and user_id.isdigit():
-        user_id = int(user_id)
-        return users.get(user_id)
+    id = request.args.get('login_as', None)
+    if id is not None and int(id) in users.keys():
+        return users.get(int(id))
     return None
+
 
 @app.before_request
 def before_request():
-    """Executed before all other functions; sets the user in the global context."""
-    g.user = get_user()
+    """
+    Add user to flask.g if user is found
+    """
+    user = get_user()
+    g.user = user
+
 
 @babel.localeselector
 def get_locale():
     """
-    Determines the best match with the supported languages based on user settings,
-    request headers, and URL parameters.
-
-    Returns:
-        str: The best match locale.
+    Select and return best language match based on supported languages
     """
-    # Locale from URL parameters
-    locale_param = request.args.get('locale')
-    if locale_param in app.config['LANGUAGES']:
-        return locale_param
-
-    # Locale from user settings
-    if g.user and g.user.get('locale') in app.config['LANGUAGES']:
-        return g.user.get('locale')
-
-    # Locale from request headers
+    loc = request.args.get('locale')
+    if loc in app.config['LANGUAGES']:
+        return loc
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
-@app.route('/')
-def index():
-    """
-    Renders the index page with user login information.
 
-    Returns:
-        str: The rendered HTML template.
+@app.route('/', strict_slashes=False)
+def index() -> str:
+    """
+    Handles / route
     """
     return render_template('5-index.html')
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+if __name__ == "__main__":
+    app.run(port="5000", host="0.0.0.0", debug=True)
