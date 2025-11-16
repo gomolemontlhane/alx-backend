@@ -1,5 +1,3 @@
-Here is the transcription of the README.md for **alx-backend**:
-
 ***
 
 # ALX-BACKEND
@@ -90,7 +88,3 @@ ctest
 [Source: GitDocify][1]
 
 ***
-
-Let me know if you need a different format or further details!
-
-[1](https://gitdocify.com/readme/alx-backend)
